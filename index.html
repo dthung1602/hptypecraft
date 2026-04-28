@@ -23,6 +23,7 @@
       <div class="upload-section">
         <label for="fileInput" class="custom-file-upload">Summon Text From the Void (.txt)</label>
         <input type="file" id="fileInput" accept=".txt">
+        <button id="openPasteBtn" class="custom-file-upload" style="background: transparent; margin-top: 10px; display: block; width: 100%;">Scribe your own Madness</button>
       </div>
 
       <div class="settings-section">
@@ -36,6 +37,18 @@
         <button id="resetBtn">Banish</button>
       </div>
     </section>
+
+    <!-- Paste Modal -->
+    <div id="pasteModal" class="modal">
+      <div class="modal-content">
+        <h2 style="font-family: var(--font-header); color: var(--accent-color);">Scribe your own Madness</h2>
+        <textarea id="pasteArea" placeholder="Paste your scroll here..."></textarea>
+        <div class="modal-buttons">
+          <button id="confirmPasteBtn">Manifest</button>
+          <button id="closeModalBtn">Seal</button>
+        </div>
+      </div>
+    </div>
 
     <section class="stats">
       <div class="stat-item">

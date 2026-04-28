@@ -13,6 +13,13 @@ const wpmDisplay = document.getElementById('wpmDisplay');
 const errorDisplay = document.getElementById('errorDisplay');
 const typingArea = document.getElementById('typingArea');
 
+// New Modal Elements
+const openPasteBtn = document.getElementById('openPasteBtn');
+const pasteModal = document.getElementById('pasteModal');
+const pasteArea = document.getElementById('pasteArea');
+const confirmPasteBtn = document.getElementById('confirmPasteBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+
 // State Variables
 let textToType = "";
 let characters = []; // Array of span elements
@@ -54,9 +61,8 @@ function loadText(text) {
     if (characters.length > 0) {
         characters[0].classList.add('current');
         startBtn.disabled = false;
-        // Focus and listen immediately
+        // Focus immediately
         typingArea.focus();
-        typingArea.addEventListener('keydown', handleKeyPress);
     }
 }
 
@@ -78,11 +84,9 @@ function sanitizeText(text) {
 // --- Game Logic ---
 
 function startGame() {
-    // Invoke now just ensures focus and readiness
     if (!textToType) return;
     typingArea.focus();
     if (!isRunning) {
-        // Just visually update buttons, timer starts on first key
         startBtn.disabled = true;
         pauseBtn.disabled = false;
         fileInput.disabled = true;
@@ -106,7 +110,9 @@ function startTimer() {
         timeLimit = null;
     }
 
-    timer = setInterval(updateTimer, 1000);
+    if (!timer) {
+        timer = setInterval(updateTimer, 1000);
+    }
 }
 
 function pauseGame() {
@@ -143,6 +149,7 @@ function resetGame() {
 }
 
 function updateTimer() {
+    if (!isRunning) return;
     timeElapsed++;
     
     let displayTime = timeElapsed;
@@ -162,18 +169,15 @@ function updateTimer() {
 }
 
 function handleKeyPress(e) {
+    // If not running, any key here (if focused) will trigger the global resume listener
+    // and then this will be called again or continue.
+    if (!isRunning) return;
+
     // Ignore meta keys (Ctrl, Alt, etc) but handle Backspace and single chars
     if (e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.key.length > 1 && e.key !== 'Backspace') return;
     
-    // Start timer on first valid key press
-    if (!isRunning && e.key !== 'Backspace') {
-        startTimer();
-    }
-
-    if (!isRunning && currentIndex === 0) return; // Don't process keys if not started/paused
-
-    // Prevent browser shortcuts (like Firefox search) and scrolling
+    // Prevent browser shortcuts and scrolling
     e.preventDefault();
 
     const expectedChar = textToType[currentIndex];
@@ -219,12 +223,10 @@ function handleKeyPress(e) {
 function calculateStats() {
     if (timeElapsed === 0) return;
 
-    // WPM: (correct characters / 5) / time in minutes
     const correctChars = typingArea.querySelectorAll('.char.correct').length;
     const wpm = Math.round((correctChars / 5) / (timeElapsed / 60));
     wpmDisplay.innerText = wpm;
 
-    // Error Rate: (errors / total typed) * 100
     const totalTyped = currentIndex;
     const errorRate = totalTyped > 0 ? Math.round((errors / totalTyped) * 100) : 0;
     errorDisplay.innerText = errorRate;
@@ -242,7 +244,73 @@ startBtn.addEventListener('click', startGame);
 pauseBtn.addEventListener('click', pauseGame);
 resetBtn.addEventListener('click', resetGame);
 
+// Global key listener for Escape and Resume
+window.addEventListener('keydown', (e) => {
+    // 1. Handle Escape specifically
+    if (e.key === 'Escape') {
+        if (pasteModal.style.display === 'flex') {
+            pasteModal.style.display = 'none';
+            typingArea.focus();
+            return;
+        }
+
+        if (textToType && currentIndex < characters.length) {
+            if (isRunning) {
+                pauseGame();
+            } else {
+                startTimer();
+                typingArea.focus();
+            }
+            e.preventDefault();
+        }
+        return;
+    }
+
+    // 2. Resume on any key if paused
+    if (!isRunning && textToType && currentIndex < characters.length) {
+        // Don't resume if typing in inputs
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        
+        // Resume!
+        startTimer();
+        // If the focus was elsewhere, we might want to focus the typing area
+        if (document.activeElement !== typingArea) {
+            typingArea.focus();
+        }
+    }
+});
+
+typingArea.addEventListener('keydown', handleKeyPress);
+
+// --- Modal Event Listeners ---
+
+openPasteBtn.addEventListener('click', () => {
+    pasteModal.style.display = 'flex';
+    pasteArea.focus();
+});
+
+closeModalBtn.addEventListener('click', () => {
+    pasteModal.style.display = 'none';
+});
+
+confirmPasteBtn.addEventListener('click', () => {
+    const text = pasteArea.value.trim();
+    if (text) {
+        loadText(text);
+        pasteModal.style.display = 'none';
+        pasteArea.value = "";
+    } else {
+        alert("The void remains empty. Scribe something!");
+    }
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === pasteModal) {
+        pasteModal.style.display = 'none';
+    }
+});
+
 // Ensure typing area is focused when clicked
 typingArea.addEventListener('click', () => {
-    if (isRunning) typingArea.focus();
+    typingArea.focus();
 });
