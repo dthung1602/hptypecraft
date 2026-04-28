@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eldritch Typecraft - Typing Practice</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+  <meta name="description" content="A Lovecraftian typing practice tool. Face the madness, one keystroke at a time.">
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Eldritch Typecraft</h1>
+      <p class="tagline">Face the madness, one keystroke at a time.</p>
+    </header>
+
+    <section class="controls">
+      <div class="upload-section">
+        <label for="fileInput" class="custom-file-upload">Summon Text From the Void (.txt)</label>
+        <input type="file" id="fileInput" accept=".txt">
+      </div>
+
+      <div class="settings-section">
+        <label for="timeLimit">Time Limit (min):</label>
+        <input type="number" id="timeLimit" min="1" max="60" placeholder="∞">
+      </div>
+
+      <div class="action-buttons">
+        <button id="startBtn" disabled>Invoke</button>
+        <button id="pauseBtn" disabled>Halt</button>
+        <button id="resetBtn">Banish</button>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat-item">
+        <span class="label">Time:</span>
+        <span id="timeDisplay">00:00</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">WPM:</span>
+        <span id="wpmDisplay">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="label">Errors:</span>
+        <span id="errorDisplay">0</span>%
+      </div>
+    </section>
+
+    <main id="typingArea" class="typing-area" tabindex="0">
+      <div class="placeholder-msg">Upload a scroll to begin your descent into madness.</div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
